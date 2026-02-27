@@ -1,0 +1,284 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Fixed Rubber Smart Calculator - M.A. Gohar</title>
+    <style>
+        :root {
+            --bg-color: #e0e5ec;
+            --shadow-light: #ffffff;
+            --shadow-dark: #a3b1c6;
+            --text-color: #44474a;
+            --accent-pink: #ff4d8d;
+            --accent-blue: #6366f1;
+        }
+
+        body {
+            margin: 0; padding: 0;
+            display: flex; justify-content: center; align-items: center;
+            min-height: 100vh; background-color: var(--bg-color);
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            overflow-x: hidden;
+            overflow-y: auto; 
+        }
+
+        /* Responsive Rubber Frame Fix */
+        .phone-frame {
+            background: var(--bg-color);
+            width: 95vw; max-width: 400px;
+            margin: 15px auto;
+            min-height: 92vh; /* Height flexible rakhi hai taaki buttons na katein */
+            border-radius: 40px;
+            padding: 20px;
+            box-shadow: 20px 20px 60px var(--shadow-dark), 
+                       -20px -20px 60px var(--shadow-light);
+            display: flex; flex-direction: column;
+            position: relative;
+        }
+
+        .brand-top {
+            text-align: center; color: #777; font-weight: 800;
+            font-size: 0.85rem; margin-bottom: 15px; letter-spacing: 1px;
+            padding: 8px; border-radius: 12px;
+            box-shadow: inset 2px 2px 5px var(--shadow-dark), inset -2px -2px 5px var(--shadow-light);
+        }
+
+        .top-display {
+            background: var(--bg-color);
+            min-height: 140px; border-radius: 20px;
+            margin-bottom: 20px; padding: 15px;
+            box-shadow: inset 6px 6px 12px var(--shadow-dark), 
+                        inset -6px -6px 12px var(--shadow-light);
+            display: flex; flex-direction: column;
+            justify-content: flex-end; align-items: flex-end;
+        }
+
+        #current-operation { 
+            color: #888; font-size: 1.1rem; font-weight: 600;
+            text-align: right; width: 100%; word-wrap: break-word;
+            margin-bottom: 5px; min-height: 1.2rem;
+        }
+
+        .result-row { width: 100%; display: flex; justify-content: space-between; align-items: center; }
+        .eq-sign { color: #aaa; font-size: 1.4rem; font-weight: bold; }
+
+        #result { color: var(--text-color); font-size: 2.8rem; font-weight: 800; word-break: break-all; }
+
+        /* Buttons Grid - Optimized for all screens */
+        .white-body-section {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            grid-auto-rows: minmax(58px, auto); 
+            gap: 12px;
+            padding-bottom: 10px;
+        }
+
+        .btn {
+            background: var(--bg-color); border: none; border-radius: 15px;
+            color: var(--text-color); font-size: 1.2rem; font-weight: 700;
+            cursor: pointer; display: flex; justify-content: center; align-items: center;
+            padding: 12px 5px;
+            box-shadow: 5px 5px 10px var(--shadow-dark), 
+                        -5px -5px 10px var(--shadow-light);
+            transition: 0.1s all ease; user-select: none;
+        }
+
+        .btn:active {
+            box-shadow: inset 3px 3px 6px var(--shadow-dark), 
+                        inset -3px -3px 6px var(--shadow-light);
+            transform: scale(0.97);
+        }
+
+        .btn.pink { color: var(--accent-pink); }
+        .btn.smart { font-size: 0.7rem; color: var(--accent-blue); }
+        
+        .btn.equal {
+            background: var(--accent-pink); color: white;
+            box-shadow: 4px 4px 10px rgba(255, 77, 141, 0.3);
+        }
+        
+        @media (max-height: 700px) {
+            .phone-frame { padding: 15px; margin: 10px auto; }
+            .top-display { min-height: 110px; margin-bottom: 15px; }
+            .white-body-section { gap: 8px; }
+            .btn { padding: 8px 2px; }
+        }
+    </style>
+</head>
+<body>
+
+<div class="phone-frame">
+    <div class="brand-top">POWERED BY M.A. GOHAR</div>
+    
+    <div class="top-display" id="display-area">
+        <div id="current-operation"></div> 
+        <div class="result-row">
+            <span class="eq-sign">=</span>
+            <div id="result">0</div>
+        </div>
+    </div>
+
+    <div class="white-body-section">
+        <button class="btn smart" onclick="calculateZakat()">ZAKAT</button>
+        <button class="btn smart" onclick="handleGST('A')">GST (A)</button>
+        <button class="btn smart" onclick="handleGST('R')">GST (R)</button>
+        <button class="btn smart" onclick="applyDiscount()">DISC</button>
+
+        <button class="btn pink" onclick="clearAll()">AC</button>
+        <button class="btn" onclick="chooseOperation('/')">/</button>
+        <button class="btn" onclick="chooseOperation('*')">×</button>
+        <button class="btn pink" onclick="deleteLast()">⌫</button>
+
+        <button class="btn" onclick="appendNumber('7')">7</button>
+        <button class="btn" onclick="appendNumber('8')">8</button>
+        <button class="btn" onclick="appendNumber('9')">9</button>
+        <button class="btn pink" onclick="applyPercentage()">%</button>
+
+        <button class="btn" onclick="appendNumber('4')">4</button>
+        <button class="btn" onclick="appendNumber('5')">5</button>
+        <button class="btn" onclick="appendNumber('6')">6</button>
+        <button class="btn pink" onclick="chooseOperation('-')">-</button>
+
+        <button class="btn" onclick="appendNumber('1')">1</button>
+        <button class="btn" onclick="appendNumber('2')">2</button>
+        <button class="btn" onclick="appendNumber('3')">3</button>
+        <button class="btn pink" onclick="chooseOperation('+')">+</button>
+
+        <button class="btn smart" onclick="showHistory()">HIST</button>
+        <button class="btn" onclick="appendNumber('0')">0</button>
+        <button class="btn" onclick="appendNumber('.')">.</button>
+        <button class="btn equal" onclick="calculateFinal()">=</button>
+    </div>
+</div>
+
+<script>
+    const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+    function playSoftClick() {
+        if (audioCtx.state === 'suspended') audioCtx.resume();
+        const osc = audioCtx.createOscillator();
+        const gain = audioCtx.createGain();
+        osc.type = 'sine';
+        osc.frequency.setValueAtTime(1000, audioCtx.currentTime);
+        gain.gain.setValueAtTime(0.03, audioCtx.currentTime);
+        gain.gain.exponentialRampToValueAtTime(0.001, audioCtx.currentTime + 0.04);
+        osc.connect(gain); gain.connect(audioCtx.destination);
+        osc.start(); osc.stop(audioCtx.currentTime + 0.04);
+    }
+
+    document.querySelectorAll('.btn').forEach(btn => {
+        btn.addEventListener('click', playSoftClick);
+    });
+
+    let expression = '';
+    const resEl = document.getElementById('result');
+    const opsEl = document.getElementById('current-operation');
+
+    function autoCalculate() {
+        if (expression === '') { resEl.innerText = '0'; return; }
+        try {
+            const lastChar = expression.slice(-1);
+            if (!['+', '-', '*', '/'].includes(lastChar)) {
+                let result = eval(expression);
+                resEl.innerText = Number.isInteger(result) ? result : result.toFixed(2);
+            }
+        } catch (e) {}
+    }
+
+    function updateDisplay() {
+        opsEl.innerText = expression || '';
+        autoCalculate();
+        if (resEl.innerText.length > 8) resEl.style.fontSize = '1.8rem';
+        else resEl.style.fontSize = '2.8rem';
+    }
+
+    function appendNumber(n) { expression += n; updateDisplay(); }
+
+    function chooseOperation(op) {
+        if (expression === '' && op === '-') { expression = '-'; updateDisplay(); return; }
+        if (expression === '') return;
+        const lastChar = expression.slice(-1);
+        if (['+', '-', '*', '/'].includes(lastChar)) {
+            expression = expression.slice(0, -1) + op;
+        } else {
+            expression += op;
+        }
+        updateDisplay();
+    }
+
+    function calculateFinal() {
+        if (expression === '') return;
+        try {
+            let result = eval(expression);
+            result = Number.isInteger(result) ? result : result.toFixed(2);
+            saveToHistory(`${expression} = ${result}`);
+            expression = result.toString();
+            resEl.innerText = result;
+            updateDisplay();
+        } catch (e) {
+            resEl.innerText = "Error";
+            setTimeout(clearAll, 1000);
+        }
+    }
+
+    function clearAll() { expression = ''; resEl.innerText = '0'; updateDisplay(); }
+    function deleteLast() { expression = expression.slice(0, -1); updateDisplay(); }
+
+    function saveToHistory(entry) {
+        let history = JSON.parse(localStorage.getItem('calcHistory') || '[]');
+        history.unshift(`[${new Date().toLocaleTimeString('en-GB', {hour12:false})}] ${entry}`);
+        localStorage.setItem('calcHistory', JSON.stringify(history.slice(0, 20)));
+    }
+
+    // Fixed History System: OK for Close, Cancel for Clear
+    function showHistory() {
+        let history = JSON.parse(localStorage.getItem('calcHistory') || '[]');
+        if (history.length === 0) { alert("History Khali Hai."); return; }
+        let msg = "HISTORY:\n\n" + history.join('\n') + "\n\nOK: Close | Cancel: Clear History";
+        if (!confirm(msg)) {
+            localStorage.removeItem('calcHistory');
+            alert("History Cleared!");
+        }
+    }
+
+    function applyPercentage() {
+        if (!expression) return;
+        try { expression = (eval(expression) / 100).toString(); updateDisplay(); } catch(e) {}
+    }
+
+    function calculateZakat() {
+        if (!expression) return;
+        try { 
+            let val = eval(expression);
+            expression = (val * 0.025).toFixed(2); 
+            saveToHistory(`Zakat on ${val} = ${expression}`);
+            updateDisplay(); 
+        } catch(e) {}
+    }
+
+    function applyDiscount() {
+        let d = prompt("Discount %?");
+        if (d && expression) {
+            try { 
+                let val = eval(expression);
+                expression = (val * (1 - d/100)).toFixed(2); 
+                saveToHistory(`${val} - ${d}% Disc = ${expression}`);
+                updateDisplay(); 
+            } catch(e) {}
+        }
+    }
+
+    function handleGST(type) {
+        let r = prompt("GST %?");
+        if (r && expression) {
+            try { 
+                let val = eval(expression);
+                expression = type === 'A' ? (val*(1+r/100)).toFixed(2) : (val/(1+r/100)).toFixed(2);
+                saveToHistory(`GST ${type} ${r}% = ${expression}`);
+                updateDisplay(); 
+            } catch(e) {}
+        }
+    }
+</script>
+</body>
+</html>
