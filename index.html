@@ -19,90 +19,84 @@
             display: flex; justify-content: center; align-items: center;
             min-height: 100vh; background-color: var(--bg-color);
             font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-            overflow-x: hidden;
-            overflow-y: auto; 
+            overflow: hidden; /* APK mein scroll avoid karein agar fit ho raha ho */
         }
 
-        /* Responsive Rubber Frame Fix */
         .phone-frame {
             background: var(--bg-color);
-            width: 95vw; max-width: 400px;
-            margin: 15px auto;
-            min-height: 92vh; /* Height flexible rakhi hai taaki buttons na katein */
-            border-radius: 40px;
-            padding: 20px;
-            box-shadow: 20px 20px 60px var(--shadow-dark), 
-                       -20px -20px 60px var(--shadow-light);
+            width: 92vw; max-width: 380px;
+            height: 94vh;
+            border-radius: 35px;
+            padding: 15px;
+            box-shadow: 15px 15px 40px var(--shadow-dark), 
+                       -15px -15px 40px var(--shadow-light);
             display: flex; flex-direction: column;
-            position: relative;
+            justify-content: space-between;
         }
 
         .brand-top {
             text-align: center; color: #777; font-weight: 800;
-            font-size: 0.85rem; margin-bottom: 15px; letter-spacing: 1px;
-            padding: 8px; border-radius: 12px;
+            font-size: 0.75rem; letter-spacing: 1px;
+            padding: 5px; border-radius: 10px;
             box-shadow: inset 2px 2px 5px var(--shadow-dark), inset -2px -2px 5px var(--shadow-light);
         }
 
         .top-display {
             background: var(--bg-color);
-            min-height: 140px; border-radius: 20px;
-            margin-bottom: 20px; padding: 15px;
+            height: 20%; border-radius: 20px;
+            padding: 15px;
             box-shadow: inset 6px 6px 12px var(--shadow-dark), 
                         inset -6px -6px 12px var(--shadow-light);
             display: flex; flex-direction: column;
             justify-content: flex-end; align-items: flex-end;
+            margin: 10px 0;
         }
 
         #current-operation { 
-            color: #888; font-size: 1.1rem; font-weight: 600;
+            color: #888; font-size: 1rem; font-weight: 600;
             text-align: right; width: 100%; word-wrap: break-word;
-            margin-bottom: 5px; min-height: 1.2rem;
+            min-height: 1.2rem;
         }
 
         .result-row { width: 100%; display: flex; justify-content: space-between; align-items: center; }
-        .eq-sign { color: #aaa; font-size: 1.4rem; font-weight: bold; }
+        .eq-sign { color: #aaa; font-size: 1.2rem; font-weight: bold; }
 
-        #result { color: var(--text-color); font-size: 2.8rem; font-weight: 800; word-break: break-all; }
+        #result { color: var(--text-color); font-size: 2.4rem; font-weight: 800; word-break: break-all; }
 
-        /* Buttons Grid - Optimized for all screens */
         .white-body-section {
             display: grid;
             grid-template-columns: repeat(4, 1fr);
-            grid-auto-rows: minmax(58px, auto); 
-            gap: 12px;
-            padding-bottom: 10px;
+            gap: 10px;
+            height: 65%;
         }
 
         .btn {
-            background: var(--bg-color); border: none; border-radius: 15px;
-            color: var(--text-color); font-size: 1.2rem; font-weight: 700;
+            background: var(--bg-color); border: none; border-radius: 12px;
+            color: var(--text-color); font-size: 1.1rem; font-weight: 700;
             cursor: pointer; display: flex; justify-content: center; align-items: center;
-            padding: 12px 5px;
-            box-shadow: 5px 5px 10px var(--shadow-dark), 
-                        -5px -5px 10px var(--shadow-light);
+            box-shadow: 4px 4px 8px var(--shadow-dark), 
+                        -4px -4px 8px var(--shadow-light);
             transition: 0.1s all ease; user-select: none;
+            -webkit-tap-highlight-color: transparent;
         }
 
         .btn:active {
-            box-shadow: inset 3px 3px 6px var(--shadow-dark), 
-                        inset -3px -3px 6px var(--shadow-light);
-            transform: scale(0.97);
+            box-shadow: inset 2px 2px 5px var(--shadow-dark), 
+                        inset -2px -2px 5px var(--shadow-light);
+            transform: scale(0.95);
         }
 
         .btn.pink { color: var(--accent-pink); }
-        .btn.smart { font-size: 0.7rem; color: var(--accent-blue); }
+        .btn.smart { font-size: 0.65rem; color: var(--accent-blue); letter-spacing: 0; }
         
         .btn.equal {
             background: var(--accent-pink); color: white;
             box-shadow: 4px 4px 10px rgba(255, 77, 141, 0.3);
         }
-        
-        @media (max-height: 700px) {
-            .phone-frame { padding: 15px; margin: 10px auto; }
-            .top-display { min-height: 110px; margin-bottom: 15px; }
-            .white-body-section { gap: 8px; }
-            .btn { padding: 8px 2px; }
+
+        @media (max-width: 350px) {
+            #result { font-size: 2rem; }
+            .btn { font-size: 1rem; }
         }
     </style>
 </head>
@@ -111,7 +105,7 @@
 <div class="phone-frame">
     <div class="brand-top">POWERED BY M.A. GOHAR</div>
     
-    <div class="top-display" id="display-area">
+    <div class="top-display">
         <div id="current-operation"></div> 
         <div class="result-row">
             <span class="eq-sign">=</span>
@@ -153,34 +147,38 @@
 </div>
 
 <script>
-    const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
-    function playSoftClick() {
-        if (audioCtx.state === 'suspended') audioCtx.resume();
-        const osc = audioCtx.createOscillator();
-        const gain = audioCtx.createGain();
-        osc.type = 'sine';
-        osc.frequency.setValueAtTime(1000, audioCtx.currentTime);
-        gain.gain.setValueAtTime(0.03, audioCtx.currentTime);
-        gain.gain.exponentialRampToValueAtTime(0.001, audioCtx.currentTime + 0.04);
-        osc.connect(gain); gain.connect(audioCtx.destination);
-        osc.start(); osc.stop(audioCtx.currentTime + 0.04);
-    }
+    // Safe Audio Initialization
+    let audioCtx;
+    try {
+        audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+    } catch (e) { console.log("Audio not supported"); }
 
-    document.querySelectorAll('.btn').forEach(btn => {
-        btn.addEventListener('click', playSoftClick);
-    });
+    function playSoftClick() {
+        if (!audioCtx) return;
+        try {
+            if (audioCtx.state === 'suspended') audioCtx.resume();
+            const osc = audioCtx.createOscillator();
+            const gain = audioCtx.createGain();
+            osc.type = 'sine';
+            osc.frequency.setValueAtTime(1000, audioCtx.currentTime);
+            gain.gain.setValueAtTime(0.02, audioCtx.currentTime);
+            gain.gain.exponentialRampToValueAtTime(0.001, audioCtx.currentTime + 0.04);
+            osc.connect(gain); gain.connect(audioCtx.destination);
+            osc.start(); osc.stop(audioCtx.currentTime + 0.04);
+        } catch (e) {}
+    }
 
     let expression = '';
     const resEl = document.getElementById('result');
     const opsEl = document.getElementById('current-operation');
 
     function autoCalculate() {
-        if (expression === '') { resEl.innerText = '0'; return; }
+        if (!expression) { resEl.innerText = '0'; return; }
         try {
             const lastChar = expression.slice(-1);
             if (!['+', '-', '*', '/'].includes(lastChar)) {
                 let result = eval(expression);
-                resEl.innerText = Number.isInteger(result) ? result : result.toFixed(2);
+                resEl.innerText = Number.isFinite(result) ? (Number.isInteger(result) ? result : result.toFixed(2)) : "Error";
             }
         } catch (e) {}
     }
@@ -188,15 +186,15 @@
     function updateDisplay() {
         opsEl.innerText = expression || '';
         autoCalculate();
-        if (resEl.innerText.length > 8) resEl.style.fontSize = '1.8rem';
-        else resEl.style.fontSize = '2.8rem';
+        resEl.style.fontSize = resEl.innerText.length > 9 ? '1.6rem' : '2.4rem';
     }
 
-    function appendNumber(n) { expression += n; updateDisplay(); }
+    function appendNumber(n) { playSoftClick(); expression += n; updateDisplay(); }
 
     function chooseOperation(op) {
-        if (expression === '' && op === '-') { expression = '-'; updateDisplay(); return; }
-        if (expression === '') return;
+        playSoftClick();
+        if (!expression && op === '-') { expression = '-'; updateDisplay(); return; }
+        if (!expression) return;
         const lastChar = expression.slice(-1);
         if (['+', '-', '*', '/'].includes(lastChar)) {
             expression = expression.slice(0, -1) + op;
@@ -207,31 +205,33 @@
     }
 
     function calculateFinal() {
-        if (expression === '') return;
+        playSoftClick();
+        if (!expression) return;
         try {
             let result = eval(expression);
             result = Number.isInteger(result) ? result : result.toFixed(2);
             saveToHistory(`${expression} = ${result}`);
             expression = result.toString();
-            resEl.innerText = result;
             updateDisplay();
         } catch (e) {
+            clearAll();
             resEl.innerText = "Error";
-            setTimeout(clearAll, 1000);
         }
     }
 
-    function clearAll() { expression = ''; resEl.innerText = '0'; updateDisplay(); }
-    function deleteLast() { expression = expression.slice(0, -1); updateDisplay(); }
+    function clearAll() { playSoftClick(); expression = ''; resEl.innerText = '0'; updateDisplay(); }
+    function deleteLast() { playSoftClick(); expression = expression.slice(0, -1); updateDisplay(); }
 
     function saveToHistory(entry) {
-        let history = JSON.parse(localStorage.getItem('calcHistory') || '[]');
-        history.unshift(`[${new Date().toLocaleTimeString('en-GB', {hour12:false})}] ${entry}`);
-        localStorage.setItem('calcHistory', JSON.stringify(history.slice(0, 20)));
+        try {
+            let history = JSON.parse(localStorage.getItem('calcHistory') || '[]');
+            history.unshift(`[${new Date().toLocaleTimeString('en-GB', {hour12:false})}] ${entry}`);
+            localStorage.setItem('calcHistory', JSON.stringify(history.slice(0, 20)));
+        } catch(e) {}
     }
 
-    // Fixed History System: OK for Close, Cancel for Clear
     function showHistory() {
+        playSoftClick();
         let history = JSON.parse(localStorage.getItem('calcHistory') || '[]');
         if (history.length === 0) { alert("History Khali Hai."); return; }
         let msg = "HISTORY:\n\n" + history.join('\n') + "\n\nOK: Close | Cancel: Clear History";
@@ -242,40 +242,51 @@
     }
 
     function applyPercentage() {
+        playSoftClick();
         if (!expression) return;
-        try { expression = (eval(expression) / 100).toString(); updateDisplay(); } catch(e) {}
+        try { 
+            let res = eval(expression) / 100;
+            expression = res.toString();
+            updateDisplay();
+        } catch(e) {}
     }
 
     function calculateZakat() {
+        playSoftClick();
         if (!expression) return;
         try { 
             let val = eval(expression);
-            expression = (val * 0.025).toFixed(2); 
-            saveToHistory(`Zakat on ${val} = ${expression}`);
-            updateDisplay(); 
+            let res = (val * 0.025).toFixed(2);
+            saveToHistory(`Zakat on ${val} = ${res}`);
+            expression = res;
+            updateDisplay();
         } catch(e) {}
     }
 
     function applyDiscount() {
+        playSoftClick();
         let d = prompt("Discount %?");
         if (d && expression) {
             try { 
                 let val = eval(expression);
-                expression = (val * (1 - d/100)).toFixed(2); 
-                saveToHistory(`${val} - ${d}% Disc = ${expression}`);
-                updateDisplay(); 
+                let res = (val * (1 - d/100)).toFixed(2);
+                saveToHistory(`${val} - ${d}% Disc = ${res}`);
+                expression = res;
+                updateDisplay();
             } catch(e) {}
         }
     }
 
     function handleGST(type) {
+        playSoftClick();
         let r = prompt("GST %?");
         if (r && expression) {
             try { 
                 let val = eval(expression);
-                expression = type === 'A' ? (val*(1+r/100)).toFixed(2) : (val/(1+r/100)).toFixed(2);
-                saveToHistory(`GST ${type} ${r}% = ${expression}`);
-                updateDisplay(); 
+                let res = type === 'A' ? (val*(1+r/100)).toFixed(2) : (val/(1+r/100)).toFixed(2);
+                saveToHistory(`GST ${type} ${r}% = ${res}`);
+                expression = res;
+                updateDisplay();
             } catch(e) {}
         }
     }
